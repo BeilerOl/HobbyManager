@@ -1,0 +1,258 @@
+openapi: 3.0.3
+info:
+  title: HobbyManager API
+  version: 1.0.0
+  description: API for managing cultural wishlist items (books, films, games, etc.).
+
+servers:
+  - url: http://localhost:8080
+    description: Development server
+
+paths:
+  /api/v1/works:
+    get:
+      summary: List works
+      operationId: listWorks
+      tags:
+        - works
+      parameters:
+        - name: type
+          in: query
+          schema:
+            $ref: '#/components/schemas/WorkType'
+        - name: seen
+          in: query
+          schema:
+            type: boolean
+      responses:
+        '200':
+          description: List of works
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Work'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a work
+      operationId: createWork
+      tags:
+        - works
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkCreate'
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/works/{id}:
+    parameters:
+      - $ref: '#/components/parameters/WorkId'
+    get:
+      summary: Get work by ID
+      operationId: getWork
+      tags:
+        - works
+      responses:
+        '200':
+          description: Work details
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    put:
+      summary: Replace work
+      operationId: updateWork
+      tags:
+        - works
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkCreate'
+      responses:
+        '200':
+          description: Updated work
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Work'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    delete:
+      summary: Delete work
+      operationId: deleteWork
+      tags:
+        - works
+      responses:
+        '204':
+          description: Deleted
+        '404':
+          description: Not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  parameters:
+    WorkId:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        format: int64
+      description: Work identifier
+
+  schemas:
+    WorkType:
+      type: string
+      enum:
+        - roman
+        - livre_culture_generale
+        - film
+        - serie_tv
+        - jeu_societe
+        - jeu_video
+      description: Type of cultural work
+
+    Work:
+      type: object
+      required:
+        - id
+        - type
+        - title
+        - authors
+        - added_at
+        - origin
+        - availability
+        - seen
+      properties:
+        id:
+          type: integer
+          format: int64
+          readOnly: true
+          description: Unique identifier
+        type:
+          $ref: '#/components/schemas/WorkType'
+        title:
+          type: string
+          description: Title of the work
+        authors:
+          type: array
+          items:
+            type: string
+          description: One or more authors
+        added_at:
+          type: string
+          format: date-time
+          readOnly: true
+          description: When the item was added (set by server)
+        origin:
+          type: string
+          description: How you heard about the work
+        availability:
+          type: string
+          description: Where you can find the work
+        seen:
+          type: boolean
+          description: Whether you have already seen/consumed the work
+
+    WorkCreate:
+      type: object
+      required:
+        - type
+        - title
+        - authors
+        - origin
+        - availability
+        - seen
+      properties:
+        type:
+          $ref: '#/components/schemas/WorkType'
+        title:
+          type: string
+        authors:
+          type: array
+          items:
+            type: string
+        origin:
+          type: string
+        availability:
+          type: string
+        seen:
+          type: boolean
+
+    Error:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+          description: Error code
+        message:
+          type: string
+          description: Human-readable message
