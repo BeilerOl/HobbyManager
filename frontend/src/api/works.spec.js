@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
-import { listWorks, getWork, createWork, updateWork, deleteWork, WORK_TYPES } from './works'
+import { listWorks, getWork, createWork, WORK_TYPES } from './works'
 
 describe('works API', () => {
   beforeEach(() => {

@@ -21,11 +21,19 @@ alwaysApply: false
 ## Stack
 
 - Vue 3 (Composition API ou Options selon le fichier existant), Vue Router, Vite.
+- Lint : ESLint + eslint-plugin-vue (scripts `lint`, `lint:fix`).
 - Tests : Vitest + @vue/test-utils, jsdom.
 - Pas de build depuis la racine : toutes les commandes npm s’exécutent depuis **frontend/**.
 
 ## Commandes
 
 - Dev : `cd frontend && npm run dev`
+- Lint : `cd frontend && npm run lint` ou `npm run lint:fix`
 - Tests : `cd frontend && npm run test:run`
 - Build : `cd frontend && npm run build`
+
+Avant de proposer une PR, exécuter `npm run lint` et `npm run test:run` dans `frontend/` ; la CI vérifiera aussi lint et tests.
+
+## Démo (GitHub Pages)
+
+En build avec `VITE_USE_MOCK=true`, l’app utilise un mock backend en mémoire (voir `frontend/src/api/mockBackend.js`) et les données de test dans `frontend/src/data/mockWorks.json`. Ne pas modifier le contrat API sans mettre à jour le mock et les fixtures.
