@@ -1,0 +1,13 @@
+{
+  "install": "cd frontend && npm install",
+  "terminals": [
+    {
+      "name": "Frontend",
+      "command": "cd frontend && npm run dev"
+    },
+    {
+      "name": "Backend",
+      "command": "cd backend && go run ./cmd/server"
+    }
+  ]
+}
