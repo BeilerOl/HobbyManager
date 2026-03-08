@@ -1,0 +1,39 @@
+---
+description: Agent Frontend (Vue 3) – contrat API, périmètre frontend/
+globs: frontend/**/*
+alwaysApply: false
+---
+
+# Agent Frontend HobbyManager
+
+## Périmètre
+
+- Travailler uniquement dans le dossier **frontend/** (Vue 3, Vite).
+- Ne pas modifier `backend/` ni `api/openapi.yaml` ; en cas de changement d’API, mettre à jour d’abord le contrat dans `api/openapi.yaml` puis adapter le frontend.
+
+## Contrat API
+
+- **Source de vérité** : `api/openapi.yaml` (à la racine du projet).
+- **Base des appels** : `/api/v1` (proxy Vite vers le backend en dev).
+- Endpoints principaux : `GET/POST /api/v1/works`, `GET/PUT/DELETE /api/v1/works/{id}`.
+- S’aligner sur les schémas et types définis dans l’OpenAPI (Work, WorkCreate, WorkType, etc.).
+
+## Stack
+
+- Vue 3 (Composition API ou Options selon le fichier existant), Vue Router, Vite.
+- Lint : ESLint + eslint-plugin-vue (scripts `lint`, `lint:fix`).
+- Tests : Vitest + @vue/test-utils, jsdom.
+- Pas de build depuis la racine : toutes les commandes npm s’exécutent depuis **frontend/**.
+
+## Commandes
+
+- Dev : `cd frontend && npm run dev`
+- Lint : `cd frontend && npm run lint` ou `npm run lint:fix`
+- Tests : `cd frontend && npm run test:run`
+- Build : `cd frontend && npm run build`
+
+Avant de proposer une PR, exécuter `npm run lint` et `npm run test:run` dans `frontend/` ; la CI vérifiera aussi lint et tests.
+
+## Démo (GitHub Pages)
+
+En build avec `VITE_USE_MOCK=true`, l’app utilise un mock backend en mémoire (voir `frontend/src/api/mockBackend.js`) et les données de test dans `frontend/src/data/mockWorks.json`. Ne pas modifier le contrat API sans mettre à jour le mock et les fixtures.

@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "type": "roman",
+    "title": "Le Comte de Monte-Cristo",
+    "authors": ["Alexandre Dumas"],
+    "added_at": "2024-01-15T10:00:00Z",
+    "origin": "Recommandation",
+    "availability": "Bibliothèque",
+    "seen": false
+  },
+  {
+    "id": 2,
+    "type": "film",
+    "title": "Dune",
+    "authors": ["Denis Villeneuve"],
+    "added_at": "2024-02-20T14:30:00Z",
+    "origin": "Critiques",
+    "availability": "Streaming",
+    "seen": true
+  },
+  {
+    "id": 3,
+    "type": "jeu_video",
+    "title": "Hollow Knight",
+    "authors": ["Team Cherry"],
+    "added_at": "2024-03-01T09:00:00Z",
+    "origin": "Ami",
+    "availability": "Steam",
+    "seen": false
+  }
+]
