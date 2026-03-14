@@ -14,16 +14,39 @@
     </div>
     <p v-if="loading">Chargement…</p>
     <p v-else-if="error" class="error">{{ error }}</p>
-    <ul v-else-if="works.length === 0" class="empty">Aucune œuvre.</ul>
-    <ul v-else class="list">
-      <li v-for="w in works" :key="w.id" class="item">
-        <router-link :to="`/works/${w.id}`" class="link">
-          <span class="title">{{ w.title }}</span>
-          <span class="meta">{{ typeLabel(w.type) }} · {{ w.authors?.join(', ') || '—' }}</span>
-          <span class="badge" :class="{ seen: w.seen }">{{ w.seen ? 'Vu' : 'À voir' }}</span>
-        </router-link>
-      </li>
-    </ul>
+    <p v-else-if="works.length === 0" class="empty">Aucune œuvre.</p>
+    <div v-else class="table-wrapper">
+      <table class="works-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Type</th>
+            <th>Titre</th>
+            <th>Auteur(s)</th>
+            <th>Date d'ajout</th>
+            <th>Origine</th>
+            <th>Disponibilité</th>
+            <th>Statut</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="w in works" :key="w.id">
+            <td>{{ w.id }}</td>
+            <td>{{ typeLabel(w.type) }}</td>
+            <td>
+              <router-link :to="`/works/${w.id}`" class="title-link">{{ w.title }}</router-link>
+            </td>
+            <td>{{ w.authors?.join(', ') || '—' }}</td>
+            <td>{{ formatDate(w.added_at) }}</td>
+            <td>{{ w.origin || '—' }}</td>
+            <td>{{ w.availability || '—' }}</td>
+            <td>
+              <span class="badge" :class="{ seen: w.seen }">{{ w.seen ? 'Vu' : 'À voir' }}</span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
   </div>
 </template>
 
@@ -39,6 +62,16 @@ const filterSeen = ref('')
 
 function typeLabel(value) {
   return WORK_TYPES.find(t => t.value === value)?.label ?? value
+}
+
+function formatDate(s) {
+  if (!s) return '—'
+  try {
+    const d = new Date(s)
+    return d.toLocaleDateString('fr-FR', { dateStyle: 'medium' })
+  } catch {
+    return s
+  }
 }
 
 async function load() {
@@ -76,35 +109,41 @@ onMounted(load)
   border-radius: 6px;
   color: #e4e4e7;
 }
-.list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+.table-wrapper {
+  overflow-x: auto;
 }
-.item {
-  margin-bottom: 0.5rem;
-}
-.link {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1rem;
+.works-table {
+  width: 100%;
+  border-collapse: collapse;
   background: #25262b;
+  border: 1px solid #3f3f46;
   border-radius: 8px;
-  text-decoration: none;
-  color: inherit;
-  border: 1px solid transparent;
+  overflow: hidden;
 }
-.link:hover {
-  border-color: #71717a;
+.works-table th,
+.works-table td {
+  padding: 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid #3f3f46;
+  vertical-align: top;
 }
-.title {
-  font-weight: 600;
-  flex: 1;
-}
-.meta {
+.works-table th {
   color: #a1a1aa;
-  font-size: 0.9rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+.works-table tbody tr:last-child td {
+  border-bottom: none;
+}
+.title-link {
+  color: #93c5fd;
+  text-decoration: none;
+  font-weight: 600;
+}
+.title-link:hover {
+  text-decoration: underline;
 }
 .badge {
   font-size: 0.75rem;
@@ -117,7 +156,8 @@ onMounted(load)
   background: #166534;
   color: #bbf7d0;
 }
-.empty, .error {
+.empty,
+.error {
   color: #a1a1aa;
 }
 .error {
