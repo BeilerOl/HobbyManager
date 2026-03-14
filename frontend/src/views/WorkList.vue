@@ -326,18 +326,17 @@ onMounted(load)
 .btn-edit {
   margin-left: 0.5rem;
   padding: 0.15rem 0.4rem;
-  background: transparent;
-  border: none;
-  color: #a1a1aa;
+  background: #3f3f46;
+  border: 1px solid #52525b;
+  color: #93c5fd;
   cursor: pointer;
   font-size: 0.85rem;
   border-radius: 4px;
-  opacity: 0.6;
-  transition: opacity 0.15s, background 0.15s;
+  transition: background 0.15s, border-color 0.15s;
 }
 .btn-edit:hover {
-  opacity: 1;
-  background: #3f3f46;
+  background: #52525b;
+  border-color: #93c5fd;
 }
 
 .edit-cell {
