@@ -96,3 +96,37 @@ export const WORK_TYPES = [
   { value: 'jeu_societe', label: 'Jeu de société' },
   { value: 'jeu_video', label: 'Jeu vidéo' },
 ]
+
+/**
+ * @param {File} file
+ * @returns {Promise<{ rows: { row_index: number, error?: string, work?: WorkCreate }[] }>}
+ */
+export async function importPreview(file) {
+  const form = new FormData()
+  form.append('file', file)
+  const res = await fetch(`${API_BASE}/import/preview`, {
+    method: 'POST',
+    body: form,
+  })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}
+
+/**
+ * @param {File} file
+ * @param {number[]|null} [rowIndices]
+ * @returns {Promise<{ created: number, errors?: { row_index: number, message: string }[] }>}
+ */
+export async function importExecute(file, rowIndices = null) {
+  const form = new FormData()
+  form.append('file', file)
+  if (Array.isArray(rowIndices) && rowIndices.length > 0) {
+    form.append('row_indices', JSON.stringify(rowIndices))
+  }
+  const res = await fetch(`${API_BASE}/import/execute`, {
+    method: 'POST',
+    body: form,
+  })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}

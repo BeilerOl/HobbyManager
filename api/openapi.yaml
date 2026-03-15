@@ -154,6 +154,87 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/import/preview:
+    post:
+      summary: Preview Excel import
+      operationId: importPreview
+      tags:
+        - import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: .xls file to preview
+      responses:
+        '200':
+          description: Preview rows (mapped works and/or per-row errors)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportPreviewResponse'
+        '400':
+          description: Invalid or missing file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/import/execute:
+    post:
+      summary: Execute Excel import
+      operationId: importExecute
+      tags:
+        - import
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: .xls file to import
+                row_indices:
+                  type: string
+                  description: Optional JSON array of row indices to include (e.g. "[0,1,2]"). If omitted, all rows are imported.
+      responses:
+        '200':
+          description: Import result summary
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ImportExecuteResponse'
+        '400':
+          description: Invalid or missing file
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
 components:
   parameters:
     WorkId:
@@ -256,3 +337,50 @@ components:
         message:
           type: string
           description: Human-readable message
+
+    ImportPreviewRow:
+      type: object
+      required:
+        - row_index
+      properties:
+        row_index:
+          type: integer
+          description: Zero-based row index in the sheet
+        error:
+          type: string
+          description: Error message if parsing failed for this row
+        work:
+          $ref: '#/components/schemas/WorkCreate'
+          description: Mapped work when no error
+
+    ImportPreviewResponse:
+      type: object
+      required:
+        - rows
+      properties:
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportPreviewRow'
+
+    ImportExecuteErrorRow:
+      type: object
+      properties:
+        row_index:
+          type: integer
+        message:
+          type: string
+
+    ImportExecuteResponse:
+      type: object
+      required:
+        - created
+      properties:
+        created:
+          type: integer
+          description: Number of works created
+        errors:
+          type: array
+          items:
+            $ref: '#/components/schemas/ImportExecuteErrorRow'
+          description: Per-row errors if any

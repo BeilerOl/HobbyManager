@@ -6,6 +6,8 @@ require modernc.org/sqlite v1.29.1
 
 require (
 	github.com/dustin/go-humanize v1.0.1 // indirect
+	github.com/extrame/ole2 v0.0.0-20160812065207-d69429661ad7 // indirect
+	github.com/extrame/xls v0.0.1 // indirect
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/hashicorp/golang-lru/v2 v2.0.7 // indirect
 	github.com/mattn/go-isatty v0.0.19 // indirect

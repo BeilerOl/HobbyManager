@@ -5,6 +5,7 @@
       <nav>
         <router-link to="/">Liste</router-link>
         <router-link to="/works/new">Ajouter</router-link>
+        <router-link to="/import">Import</router-link>
       </nav>
     </header>
     <main class="main">

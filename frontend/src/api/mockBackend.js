@@ -115,3 +115,56 @@ export const WORK_TYPES = [
   { value: 'jeu_societe', label: 'Jeu de société' },
   { value: 'jeu_video', label: 'Jeu vidéo' },
 ]
+
+/**
+ * Mock: return fake preview rows (from first 3 mock works as WorkCreate).
+ * @param {File} [file] - ignored in mock
+ * @returns {Promise<{ rows: { row_index: number, error?: string, work?: WorkCreate }[] }>}
+ */
+export async function importPreview(file) {
+  void file
+  await Promise.resolve()
+  const sample = store.slice(0, 3).map((w) => ({
+    type: w.type,
+    title: w.title,
+    authors: w.authors || [],
+    origin: w.origin || '',
+    availability: w.availability || '',
+    seen: w.seen,
+  }))
+  const rows = sample.map((work, i) => ({
+    row_index: i,
+    work,
+  }))
+  return { rows }
+}
+
+/**
+ * Mock: simulate import by creating works for selected rows (or all preview rows).
+ * @param {File} [file] - ignored in mock
+ * @param {number[]|null} [rowIndices]
+ * @returns {Promise<{ created: number, errors?: { row_index: number, message: string }[] }>}
+ */
+export async function importExecute(file, rowIndices = null) {
+  void file
+  await Promise.resolve()
+  const sample = store.slice(0, 3).map((w) => ({
+    type: w.type,
+    title: `[Import] ${w.title}`,
+    authors: w.authors || [],
+    origin: w.origin || '',
+    availability: w.availability || '',
+    seen: w.seen,
+  }))
+  const indices = Array.isArray(rowIndices) && rowIndices.length > 0
+    ? rowIndices
+    : sample.map((_, i) => i)
+  let created = 0
+  for (const idx of indices) {
+    if (idx >= 0 && idx < sample.length) {
+      await createWork(sample[idx])
+      created++
+    }
+  }
+  return { created, errors: [] }
+}

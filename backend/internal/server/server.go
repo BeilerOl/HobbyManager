@@ -13,5 +13,7 @@ func NewMux(repo repository.WorkRepository) *http.ServeMux {
 	wh := &handler.WorksHandler{Repo: repo}
 	mux.Handle("/api/v1/works", wh)
 	mux.Handle("/api/v1/works/", wh)
+	ih := &handler.ImportHandler{Repo: repo}
+	mux.Handle("/api/v1/import/", ih)
 	return mux
 }
