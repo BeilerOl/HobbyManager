@@ -13,6 +13,10 @@ frontend/dist/
 .DS_Store
 pr-body.md
 
+# Import / données
+*.xls
+*.xlsx
+
 # Env
 .env
 .env.local

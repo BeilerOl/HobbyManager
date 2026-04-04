@@ -107,6 +107,51 @@ export async function deleteWork(id) {
   if (idx !== -1) store.splice(idx, 1)
 }
 
+/**
+ * @param {File} [file]
+ * @returns {Promise<{ sheet_warnings?: string[], rows: { row_index: number, work: WorkCreate, errors: string[] }[] }>}
+ */
+export async function previewWorkImport(file) {
+  await Promise.resolve()
+  if (!file) {
+    return { sheet_warnings: [], rows: [] }
+  }
+  return {
+    sheet_warnings: [],
+    rows: [
+      {
+        row_index: 2,
+        work: {
+          type: 'film',
+          title: 'Exemple (démo)',
+          authors: ['Auteur démo'],
+          origin: '',
+          availability: '',
+          seen: false,
+        },
+        errors: [],
+      },
+    ],
+  }
+}
+
+/**
+ * @param {WorkCreate[]} items
+ * @returns {Promise<{ created: Work[], failed: { index: number, message: string }[] }>}
+ */
+export async function importWorks(items) {
+  const created = []
+  const failed = []
+  for (let i = 0; i < items.length; i++) {
+    try {
+      created.push(await createWork(items[i]))
+    } catch (e) {
+      failed.push({ index: i, message: String(e?.message || e) })
+    }
+  }
+  return { created, failed }
+}
+
 export const WORK_TYPES = [
   { value: 'roman', label: 'Roman' },
   { value: 'livre_culture_generale', label: 'Livre de culture générale' },

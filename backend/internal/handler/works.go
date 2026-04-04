@@ -160,12 +160,22 @@ var validTypes = map[model.WorkType]bool{
 	model.WorkTypeJeuVideo:             true,
 }
 
-func validateWorkCreate(w *model.WorkCreate) error {
+// ValidateWorkCreateErrors returns validation issues for import preview (empty if valid).
+func ValidateWorkCreateErrors(w *model.WorkCreate) []string {
+	var errs []string
 	if !validTypes[w.Type] {
-		return ErrInvalidType
+		errs = append(errs, ErrInvalidType.Error())
 	}
 	if strings.TrimSpace(w.Title) == "" {
-		return ErrTitleRequired
+		errs = append(errs, ErrTitleRequired.Error())
 	}
-	return nil
+	return errs
+}
+
+func validateWorkCreate(w *model.WorkCreate) error {
+	errs := ValidateWorkCreateErrors(w)
+	if len(errs) == 0 {
+		return nil
+	}
+	return errors.New(errs[0])
 }

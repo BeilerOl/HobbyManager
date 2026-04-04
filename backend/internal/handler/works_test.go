@@ -12,7 +12,7 @@ import (
 )
 
 func TestWorksHandler_List(t *testing.T) {
-	repo := &repository.MockWorkRepository{NextID: 1}
+	repo := &repository.MockWorkRepository{NextID: 0}
 	_, _ = repo.Create(nil, &model.WorkCreate{
 		Type: model.WorkTypeRoman, Title: "Test", Authors: []string{"A"}, Origin: "", Availability: "", Seen: false,
 	})
@@ -35,7 +35,7 @@ func TestWorksHandler_List(t *testing.T) {
 }
 
 func TestWorksHandler_Create(t *testing.T) {
-	repo := &repository.MockWorkRepository{NextID: 1}
+	repo := &repository.MockWorkRepository{NextID: 0}
 	h := &WorksHandler{Repo: repo}
 
 	body := `{"type":"film","title":"Un film","authors":["X"],"origin":"ami","availability":"librairie","seen":false}`

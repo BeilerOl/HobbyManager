@@ -88,6 +88,35 @@ export async function deleteWork(id) {
   if (!res.ok) throw new Error(await res.text())
 }
 
+/**
+ * @param {File} file
+ * @returns {Promise<{ sheet_warnings?: string[], rows: { row_index: number, work: WorkCreate, errors: string[] }[] }>}
+ */
+export async function previewWorkImport(file) {
+  const fd = new FormData()
+  fd.append('file', file)
+  const res = await fetch(`${API_BASE}/works/import/preview`, {
+    method: 'POST',
+    body: fd,
+  })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}
+
+/**
+ * @param {WorkCreate[]} items
+ * @returns {Promise<{ created: Work[], failed: { index: number, message: string }[] }>}
+ */
+export async function importWorks(items) {
+  const res = await fetch(`${API_BASE}/works/import`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ items }),
+  })
+  if (!res.ok) throw new Error(await res.text())
+  return res.json()
+}
+
 export const WORK_TYPES = [
   { value: 'roman', label: 'Roman' },
   { value: 'livre_culture_generale', label: 'Livre de culture générale' },

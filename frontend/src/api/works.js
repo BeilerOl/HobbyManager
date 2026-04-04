@@ -11,4 +11,6 @@ export const getWork = api.getWork
 export const createWork = api.createWork
 export const updateWork = api.updateWork
 export const deleteWork = api.deleteWork
+export const previewWorkImport = api.previewWorkImport
+export const importWorks = api.importWorks
 export const WORK_TYPES = api.WORK_TYPES

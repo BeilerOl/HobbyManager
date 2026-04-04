@@ -56,3 +56,28 @@ func TestDB_CRUD(t *testing.T) {
 		t.Fatal("expected nil after delete")
 	}
 }
+
+func TestDB_CreateMany(t *testing.T) {
+	db, err := NewDB("file::memory:?cache=shared")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer db.Close()
+	ctx := context.Background()
+
+	items := []*model.WorkCreate{
+		{Type: model.WorkTypeFilm, Title: "A", Authors: []string{"x"}, Origin: "", Availability: "", Seen: false},
+		{Type: model.WorkTypeRoman, Title: "B", Authors: nil, Origin: "o", Availability: "a", Seen: true},
+	}
+	created, err := db.CreateMany(ctx, items)
+	if err != nil || len(created) != 2 {
+		t.Fatalf("CreateMany: %v len=%d", err, len(created))
+	}
+	if created[0].Title != "A" || created[1].Title != "B" {
+		t.Fatalf("unexpected: %+v", created)
+	}
+	list, err := db.List(ctx, nil)
+	if err != nil || len(list) != 2 {
+		t.Fatalf("List after CreateMany: %v len=%d", err, len(list))
+	}
+}

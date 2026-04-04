@@ -70,6 +70,77 @@ paths:
               schema:
                 $ref: '#/components/schemas/Error'
 
+  /api/v1/works/import/preview:
+    post:
+      summary: Preview works parsed from an Excel file
+      operationId: previewWorkImport
+      tags:
+        - works
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: .xlsx file
+      responses:
+        '200':
+          description: Parsed rows with validation hints per line
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkImportPreviewResponse'
+        '400':
+          description: Missing file or unreadable spreadsheet
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/works/import:
+    post:
+      summary: Import multiple works from JSON (after preview)
+      operationId: importWorks
+      tags:
+        - works
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WorkImportRequest'
+      responses:
+        '200':
+          description: Created works and any failures
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/WorkImportResponse'
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
   /api/v1/works/{id}:
     parameters:
       - $ref: '#/components/parameters/WorkId'
@@ -243,6 +314,76 @@ components:
           type: string
         seen:
           type: boolean
+
+    WorkImportPreviewRow:
+      type: object
+      required:
+        - row_index
+        - work
+        - errors
+      properties:
+        row_index:
+          type: integer
+          description: 1-based row index in the sheet (including header row as 1)
+        work:
+          $ref: '#/components/schemas/WorkCreate'
+        errors:
+          type: array
+          items:
+            type: string
+          description: Validation messages; empty if the row is ready to import
+
+    WorkImportPreviewResponse:
+      type: object
+      required:
+        - rows
+      properties:
+        sheet_warnings:
+          type: array
+          items:
+            type: string
+          description: Issues detected at sheet level (e.g. missing expected columns)
+        rows:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkImportPreviewRow'
+
+    WorkImportRequest:
+      type: object
+      required:
+        - items
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkCreate'
+
+    WorkImportFailure:
+      type: object
+      required:
+        - index
+        - message
+      properties:
+        index:
+          type: integer
+          description: 0-based index in the request items array
+        message:
+          type: string
+
+    WorkImportResponse:
+      type: object
+      required:
+        - created
+        - failed
+      properties:
+        created:
+          type: array
+          items:
+            $ref: '#/components/schemas/Work'
+        failed:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkImportFailure'
 
     Error:
       type: object

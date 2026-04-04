@@ -53,6 +53,18 @@ func (m *MockWorkRepository) Create(ctx context.Context, w *model.WorkCreate) (*
 	return work, nil
 }
 
+func (m *MockWorkRepository) CreateMany(ctx context.Context, items []*model.WorkCreate) ([]*model.Work, error) {
+	out := make([]*model.Work, 0, len(items))
+	for _, w := range items {
+		created, err := m.Create(ctx, w)
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, created)
+	}
+	return out, nil
+}
+
 func (m *MockWorkRepository) Update(ctx context.Context, id int64, w *model.WorkCreate) (*model.Work, error) {
 	for i, work := range m.Works {
 		if work.ID == id {

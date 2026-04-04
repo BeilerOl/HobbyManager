@@ -123,6 +123,50 @@ func (d *DB) Create(ctx context.Context, w *model.WorkCreate) (*model.Work, erro
 	return d.GetByID(ctx, id)
 }
 
+// CreateMany inserts all works in one transaction.
+func (d *DB) CreateMany(ctx context.Context, items []*model.WorkCreate) ([]*model.Work, error) {
+	if len(items) == 0 {
+		return []*model.Work{}, nil
+	}
+	tx, err := d.db.BeginTx(ctx, nil)
+	if err != nil {
+		return nil, err
+	}
+	defer func() { _ = tx.Rollback() }()
+
+	ids := make([]int64, len(items))
+	for i, w := range items {
+		authorsJSON, err := json.Marshal(w.Authors)
+		if err != nil {
+			return nil, err
+		}
+		res, err := tx.ExecContext(ctx,
+			`INSERT INTO works (type, title, authors, origin, availability, seen) VALUES (?, ?, ?, ?, ?, ?)`,
+			string(w.Type), w.Title, string(authorsJSON), w.Origin, w.Availability, boolToInt(w.Seen))
+		if err != nil {
+			return nil, err
+		}
+		id, err := res.LastInsertId()
+		if err != nil {
+			return nil, err
+		}
+		ids[i] = id
+	}
+	if err := tx.Commit(); err != nil {
+		return nil, err
+	}
+
+	out := make([]*model.Work, len(ids))
+	for i, id := range ids {
+		w, err := d.GetByID(ctx, id)
+		if err != nil {
+			return nil, err
+		}
+		out[i] = w
+	}
+	return out, nil
+}
+
 // Update replaces a work by id and returns the updated work, or nil if not found.
 func (d *DB) Update(ctx context.Context, id int64, w *model.WorkCreate) (*model.Work, error) {
 	authorsJSON, err := json.Marshal(w.Authors)
