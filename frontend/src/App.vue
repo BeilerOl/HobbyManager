@@ -38,6 +38,9 @@ body {
   padding: 1rem 1.5rem;
   background: #25262b;
   border-bottom: 1px solid #3f3f46;
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 .logo {
   font-weight: 700;
