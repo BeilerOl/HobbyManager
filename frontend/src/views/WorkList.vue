@@ -1,22 +1,45 @@
 <template>
   <div class="work-list">
-    <h1>Œuvres</h1>
-    <div class="filters">
-      <select v-model="filterType" @change="load">
-        <option value="">Tous les types</option>
-        <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
-      </select>
-      <select v-model="filterSeen" @change="load">
-        <option value="">Tous</option>
-        <option value="false">Non vu</option>
-        <option value="true">Déjà vu</option>
-      </select>
+    <div class="page-header">
+      <h1 class="page-title">Œuvres</h1>
     </div>
-    <p v-if="loading">Chargement…</p>
-    <p v-else-if="error" class="error">{{ error }}</p>
-    <p v-else-if="works.length === 0" class="empty">Aucune œuvre.</p>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label class="qtm-form-label" for="filter-type">Type</label>
+        <select id="filter-type" v-model="filterType" class="qtm-form-select" @change="load">
+          <option value="">Tous les types</option>
+          <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label class="qtm-form-label" for="filter-seen">Statut</label>
+        <select id="filter-seen" v-model="filterSeen" class="qtm-form-select" @change="load">
+          <option value="">Tous</option>
+          <option value="false">Non vu</option>
+          <option value="true">Déjà vu</option>
+        </select>
+      </div>
+    </div>
+
+    <div v-if="loading" class="loading-state">
+      <i class="material-icons spin">autorenew</i>
+      <span>Chargement…</span>
+    </div>
+    <div v-else-if="error" class="qtm-alert qtm-alert-error">
+      <i class="material-icons">error_outline</i>
+      <span>{{ error }}</span>
+    </div>
+    <div v-else-if="works.length === 0" class="empty-state">
+      <i class="material-icons empty-icon">inventory_2</i>
+      <p>Aucune œuvre trouvée.</p>
+      <router-link to="/works/new" class="qtm-btn qtm-btn-primary">
+        <i class="material-icons">add</i>
+        <span>Ajouter une œuvre</span>
+      </router-link>
+    </div>
     <div v-else class="table-wrapper">
-      <table class="works-table">
+      <table class="qtm-table">
         <thead>
           <tr>
             <th>ID</th>
@@ -32,17 +55,21 @@
         </thead>
         <tbody>
           <tr v-for="w in works" :key="w.id">
-            <td>{{ w.id }}</td>
+            <td class="cell-id">{{ w.id }}</td>
             <!-- Type: select dropdown -->
             <td>
               <template v-if="editingCell?.id === w.id && editingCell?.field === 'type'">
                 <div class="edit-cell">
-                  <select v-model="editValue" class="edit-select">
+                  <select v-model="editValue" class="qtm-form-select edit-input">
                     <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
                   </select>
                   <div class="edit-actions">
-                    <button type="button" class="btn-icon save" title="Sauvegarder" @click="saveEdit(w)">✓</button>
-                    <button type="button" class="btn-icon cancel" title="Annuler" @click="cancelEdit">✕</button>
+                    <button type="button" class="qtm-btn qtm-btn-success qtm-btn-icon qtm-btn-sm" title="Sauvegarder" @click="saveEdit(w)">
+                      <i class="material-icons">check</i>
+                    </button>
+                    <button type="button" class="qtm-btn qtm-btn-outline qtm-btn-icon qtm-btn-sm" title="Annuler" @click="cancelEdit">
+                      <i class="material-icons">close</i>
+                    </button>
                   </div>
                 </div>
               </template>
@@ -54,26 +81,36 @@
             <td>
               <template v-if="editingCell?.id === w.id && editingCell?.field === 'title'">
                 <div class="edit-cell">
-                  <input v-model="editValue" type="text" class="edit-input" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
+                  <input v-model="editValue" type="text" class="qtm-form-input edit-input" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
                   <div class="edit-actions">
-                    <button type="button" class="btn-icon save" title="Sauvegarder" @click="saveEdit(w)">✓</button>
-                    <button type="button" class="btn-icon cancel" title="Annuler" @click="cancelEdit">✕</button>
+                    <button type="button" class="qtm-btn qtm-btn-success qtm-btn-icon qtm-btn-sm" title="Sauvegarder" @click="saveEdit(w)">
+                      <i class="material-icons">check</i>
+                    </button>
+                    <button type="button" class="qtm-btn qtm-btn-outline qtm-btn-icon qtm-btn-sm" title="Annuler" @click="cancelEdit">
+                      <i class="material-icons">close</i>
+                    </button>
                   </div>
                 </div>
               </template>
               <template v-else>
                 <router-link :to="`/works/${w.id}`" class="title-link">{{ w.title }}</router-link>
-                <button type="button" class="btn-edit" title="Modifier" @click.stop="startEdit(w, 'title', w.title)">✎</button>
+                <button type="button" class="inline-edit-btn" title="Modifier" @click.stop="startEdit(w, 'title', w.title)">
+                  <i class="material-icons">edit</i>
+                </button>
               </template>
             </td>
             <!-- Authors: text input (comma-separated) -->
             <td>
               <template v-if="editingCell?.id === w.id && editingCell?.field === 'authors'">
                 <div class="edit-cell">
-                  <input v-model="editValue" type="text" class="edit-input" placeholder="Auteur1, Auteur2" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
+                  <input v-model="editValue" type="text" class="qtm-form-input edit-input" placeholder="Auteur1, Auteur2" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
                   <div class="edit-actions">
-                    <button type="button" class="btn-icon save" title="Sauvegarder" @click="saveEdit(w)">✓</button>
-                    <button type="button" class="btn-icon cancel" title="Annuler" @click="cancelEdit">✕</button>
+                    <button type="button" class="qtm-btn qtm-btn-success qtm-btn-icon qtm-btn-sm" title="Sauvegarder" @click="saveEdit(w)">
+                      <i class="material-icons">check</i>
+                    </button>
+                    <button type="button" class="qtm-btn qtm-btn-outline qtm-btn-icon qtm-btn-sm" title="Annuler" @click="cancelEdit">
+                      <i class="material-icons">close</i>
+                    </button>
                   </div>
                 </div>
               </template>
@@ -82,15 +119,19 @@
               </template>
             </td>
             <!-- Date: read-only per API spec -->
-            <td>{{ formatDate(w.added_at) }}</td>
+            <td class="cell-date">{{ formatDate(w.added_at) }}</td>
             <!-- Origin: text input -->
             <td>
               <template v-if="editingCell?.id === w.id && editingCell?.field === 'origin'">
                 <div class="edit-cell">
-                  <input v-model="editValue" type="text" class="edit-input" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
+                  <input v-model="editValue" type="text" class="qtm-form-input edit-input" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
                   <div class="edit-actions">
-                    <button type="button" class="btn-icon save" title="Sauvegarder" @click="saveEdit(w)">✓</button>
-                    <button type="button" class="btn-icon cancel" title="Annuler" @click="cancelEdit">✕</button>
+                    <button type="button" class="qtm-btn qtm-btn-success qtm-btn-icon qtm-btn-sm" title="Sauvegarder" @click="saveEdit(w)">
+                      <i class="material-icons">check</i>
+                    </button>
+                    <button type="button" class="qtm-btn qtm-btn-outline qtm-btn-icon qtm-btn-sm" title="Annuler" @click="cancelEdit">
+                      <i class="material-icons">close</i>
+                    </button>
                   </div>
                 </div>
               </template>
@@ -102,10 +143,14 @@
             <td>
               <template v-if="editingCell?.id === w.id && editingCell?.field === 'availability'">
                 <div class="edit-cell">
-                  <input v-model="editValue" type="text" class="edit-input" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
+                  <input v-model="editValue" type="text" class="qtm-form-input edit-input" @keyup.enter="saveEdit(w)" @keyup.escape="cancelEdit" />
                   <div class="edit-actions">
-                    <button type="button" class="btn-icon save" title="Sauvegarder" @click="saveEdit(w)">✓</button>
-                    <button type="button" class="btn-icon cancel" title="Annuler" @click="cancelEdit">✕</button>
+                    <button type="button" class="qtm-btn qtm-btn-success qtm-btn-icon qtm-btn-sm" title="Sauvegarder" @click="saveEdit(w)">
+                      <i class="material-icons">check</i>
+                    </button>
+                    <button type="button" class="qtm-btn qtm-btn-outline qtm-btn-icon qtm-btn-sm" title="Annuler" @click="cancelEdit">
+                      <i class="material-icons">close</i>
+                    </button>
                   </div>
                 </div>
               </template>
@@ -117,30 +162,50 @@
             <td>
               <template v-if="editingCell?.id === w.id && editingCell?.field === 'seen'">
                 <div class="edit-cell">
-                  <select v-model="editValue" class="edit-select">
+                  <select v-model="editValue" class="qtm-form-select edit-input">
                     <option :value="true">Vu</option>
                     <option :value="false">À voir</option>
                   </select>
                   <div class="edit-actions">
-                    <button type="button" class="btn-icon save" title="Sauvegarder" @click="saveEdit(w)">✓</button>
-                    <button type="button" class="btn-icon cancel" title="Annuler" @click="cancelEdit">✕</button>
+                    <button type="button" class="qtm-btn qtm-btn-success qtm-btn-icon qtm-btn-sm" title="Sauvegarder" @click="saveEdit(w)">
+                      <i class="material-icons">check</i>
+                    </button>
+                    <button type="button" class="qtm-btn qtm-btn-outline qtm-btn-icon qtm-btn-sm" title="Annuler" @click="cancelEdit">
+                      <i class="material-icons">close</i>
+                    </button>
                   </div>
                 </div>
               </template>
               <template v-else>
-                <span class="badge editable" :class="{ seen: w.seen }" @click="startEdit(w, 'seen', w.seen)">{{ w.seen ? 'Vu' : 'À voir' }}</span>
+                <span
+                  class="qtm-tag editable"
+                  :class="w.seen ? 'qtm-tag-success' : 'qtm-tag-neutral'"
+                  @click="startEdit(w, 'seen', w.seen)"
+                >
+                  <i class="material-icons" style="font-size: 0.875rem">{{ w.seen ? 'check_circle' : 'schedule' }}</i>
+                  {{ w.seen ? 'Vu' : 'À voir' }}
+                </span>
               </template>
             </td>
             <!-- Actions column -->
             <td>
-              <router-link :to="`/works/${w.id}`" class="btn-action" title="Voir détails">👁</router-link>
-              <router-link :to="`/works/${w.id}/edit`" class="btn-action" title="Modifier tout">✎</router-link>
+              <div class="actions-cell">
+                <router-link :to="`/works/${w.id}`" class="qtm-btn qtm-btn-ghost qtm-btn-icon qtm-btn-sm" title="Voir détails">
+                  <i class="material-icons">visibility</i>
+                </router-link>
+                <router-link :to="`/works/${w.id}/edit`" class="qtm-btn qtm-btn-ghost qtm-btn-icon qtm-btn-sm" title="Modifier tout">
+                  <i class="material-icons">edit</i>
+                </router-link>
+              </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p v-if="saveError" class="error save-error">{{ saveError }}</p>
+    <div v-if="saveError" class="qtm-alert qtm-alert-error save-error">
+      <i class="material-icons">error_outline</i>
+      <span>{{ saveError }}</span>
+    </div>
   </div>
 </template>
 
@@ -239,162 +304,129 @@ onMounted(load)
 </script>
 
 <style scoped>
-.work-list h1 {
-  margin-top: 0;
-  font-size: 1.5rem;
+.page-header {
+  margin-bottom: var(--qtm-space-xl);
+}
+.page-title {
+  margin: 0;
+  font-size: var(--qtm-font-size-xl);
+  font-weight: 700;
+  color: var(--qtm-text-primary);
 }
 .filters {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  gap: var(--qtm-space-l);
+  margin-bottom: var(--qtm-space-xl);
 }
-.filters select {
-  padding: 0.5rem 0.75rem;
-  background: #25262b;
-  border: 1px solid #3f3f46;
-  border-radius: 6px;
-  color: #e4e4e7;
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 10rem;
+}
+.filter-group .qtm-form-select {
+  padding: var(--qtm-space-s) var(--qtm-space-m);
 }
 .table-wrapper {
   overflow-x: auto;
+  border-radius: var(--qtm-radius-l);
+  box-shadow: var(--qtm-shadow-s);
 }
-.works-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: #25262b;
-  border: 1px solid #3f3f46;
-  border-radius: 8px;
-  overflow: hidden;
+.cell-id {
+  color: var(--qtm-text-secondary);
+  font-size: var(--qtm-font-size-sm);
+  font-variant-numeric: tabular-nums;
 }
-.works-table th,
-.works-table td {
-  padding: 0.75rem;
-  text-align: left;
-  border-bottom: 1px solid #3f3f46;
-  vertical-align: middle;
-}
-.works-table th {
-  color: #a1a1aa;
-  font-weight: 600;
-  font-size: 0.85rem;
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
-}
-.works-table tbody tr:last-child td {
-  border-bottom: none;
+.cell-date {
+  white-space: nowrap;
+  color: var(--qtm-text-secondary);
 }
 .title-link {
-  color: #93c5fd;
+  color: var(--qtm-primary-400);
+  font-weight: 500;
   text-decoration: none;
-  font-weight: 600;
 }
 .title-link:hover {
+  color: var(--qtm-primary-500);
   text-decoration: underline;
 }
-.badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  background: #3f3f46;
-  color: #a1a1aa;
-}
-.badge.seen {
-  background: #166534;
-  color: #bbf7d0;
-}
-.empty,
-.error {
-  color: #a1a1aa;
-}
-.error {
-  color: #f87171;
-}
-.save-error {
-  margin-top: 1rem;
-}
-
 .editable {
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: background 0.15s;
+  padding: var(--qtm-space-xxs) var(--qtm-space-xs);
+  border-radius: var(--qtm-radius-s);
+  transition: background var(--qtm-transition-fast);
 }
 .editable:hover {
-  background: #3f3f46;
+  background: var(--qtm-bluegrey-100);
 }
-
-.btn-edit {
-  margin-left: 0.5rem;
-  padding: 0.15rem 0.4rem;
-  background: #3f3f46;
-  border: 1px solid #52525b;
-  color: #93c5fd;
+.inline-edit-btn {
+  margin-left: var(--qtm-space-xs);
+  padding: 2px;
+  background: none;
+  border: none;
+  color: var(--qtm-text-secondary);
   cursor: pointer;
-  font-size: 0.85rem;
-  border-radius: 4px;
-  transition: background 0.15s, border-color 0.15s;
+  border-radius: var(--qtm-radius-s);
+  transition: all var(--qtm-transition-fast);
+  vertical-align: middle;
+  opacity: 0.5;
 }
-.btn-edit:hover {
-  background: #52525b;
-  border-color: #93c5fd;
+.inline-edit-btn .material-icons {
+  font-size: 0.875rem;
 }
-
+.inline-edit-btn:hover {
+  color: var(--qtm-primary-400);
+  opacity: 1;
+}
 .edit-cell {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--qtm-space-s);
 }
-.edit-input,
-.edit-select {
-  padding: 0.35rem 0.5rem;
-  background: #1a1b1e;
-  border: 1px solid #3b82f6;
-  border-radius: 4px;
-  color: #e4e4e7;
-  font-size: 0.9rem;
+.edit-input {
   min-width: 100px;
-}
-.edit-input:focus,
-.edit-select:focus {
-  outline: none;
-  border-color: #60a5fa;
+  font-size: var(--qtm-font-size-sm);
 }
 .edit-actions {
   display: flex;
-  gap: 0.25rem;
+  gap: var(--qtm-space-xxs);
 }
-.btn-icon {
-  padding: 0.25rem 0.5rem;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 0.85rem;
-  transition: background 0.15s;
+.actions-cell {
+  display: flex;
+  gap: var(--qtm-space-xxs);
 }
-.btn-icon.save {
-  background: #166534;
-  color: #bbf7d0;
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: var(--qtm-space-s);
+  padding: var(--qtm-space-xxl);
+  justify-content: center;
+  color: var(--qtm-text-secondary);
 }
-.btn-icon.save:hover {
-  background: #15803d;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
-.btn-icon.cancel {
-  background: #3f3f46;
-  color: #a1a1aa;
+.spin {
+  animation: spin 1s linear infinite;
 }
-.btn-icon.cancel:hover {
-  background: #52525b;
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--qtm-space-xxxl) var(--qtm-space-xl);
+  color: var(--qtm-text-secondary);
+  text-align: center;
 }
-
-.btn-action {
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.25rem;
-  text-decoration: none;
-  font-size: 1rem;
-  border-radius: 4px;
-  transition: background 0.15s;
+.empty-icon {
+  font-size: 3rem;
+  color: var(--qtm-bluegrey-300);
+  margin-bottom: var(--qtm-space-l);
 }
-.btn-action:hover {
-  background: #3f3f46;
+.empty-state p {
+  margin: 0 0 var(--qtm-space-xl);
+  font-size: var(--qtm-font-size-md);
+}
+.save-error {
+  margin-top: var(--qtm-space-l);
 }
 </style>
