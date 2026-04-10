@@ -1,33 +1,51 @@
 <template>
-  <div class="work-detail">
+  <div class="work-detail page-shell">
     <p v-if="loading">Chargement…</p>
-    <p v-else-if="error" class="error">{{ error }}</p>
+    <p v-else-if="error" class="inline-error">{{ error }}</p>
     <template v-else-if="work">
-      <div class="header">
-        <router-link to="/" class="back">← Liste</router-link>
-        <h1>{{ work.title }}</h1>
-        <span class="badge" :class="{ seen: work.seen }">{{ work.seen ? 'Vu' : 'À voir' }}</span>
-      </div>
-      <dl class="meta">
-        <dt>Type</dt>
-        <dd>{{ typeLabel(work.type) }}</dd>
-        <dt>Auteur(s)</dt>
-        <dd>{{ work.authors?.join(', ') || '—' }}</dd>
-        <dt>Date d'ajout</dt>
-        <dd>{{ formatDate(work.added_at) }}</dd>
-        <dt>Origine</dt>
-        <dd>{{ work.origin || '—' }}</dd>
-        <dt>Disponibilité</dt>
-        <dd>{{ work.availability || '—' }}</dd>
+      <header class="page-header work-header">
+        <div>
+          <router-link to="/" class="back">← Retour au catalogue</router-link>
+          <h1 class="page-title">{{ work.title }}</h1>
+          <p class="page-subtitle">Fiche détaillée de l'œuvre sélectionnée.</p>
+        </div>
+        <span class="status-badge" :class="{ seen: work.seen }">{{ work.seen ? 'Vu' : 'A voir' }}</span>
+      </header>
+
+      <dl class="meta-grid">
+        <div class="meta-item">
+          <dt>Type</dt>
+          <dd>{{ typeLabel(work.type) }}</dd>
+        </div>
+        <div class="meta-item">
+          <dt>Auteur(s)</dt>
+          <dd>{{ work.authors?.join(', ') || '—' }}</dd>
+        </div>
+        <div class="meta-item">
+          <dt>Date d'ajout</dt>
+          <dd>{{ formatDate(work.added_at) }}</dd>
+        </div>
+        <div class="meta-item">
+          <dt>Origine</dt>
+          <dd>{{ work.origin || '—' }}</dd>
+        </div>
+        <div class="meta-item">
+          <dt>Disponibilité</dt>
+          <dd>{{ work.availability || '—' }}</dd>
+        </div>
       </dl>
+
       <div class="actions">
-        <router-link :to="`/works/${work.id}/edit`" class="btn primary">Modifier</router-link>
-        <button type="button" class="btn danger" @click="confirmDelete">Supprimer</button>
+        <router-link :to="`/works/${work.id}/edit`" class="action-btn primary">Modifier</router-link>
+        <button type="button" class="action-btn danger" @click="confirmDelete">Supprimer</button>
       </div>
-      <div v-if="showConfirm" class="confirm">
+
+      <div v-if="showConfirm" class="confirm-card">
         <p>Supprimer « {{ work.title }} » ?</p>
-        <button type="button" class="btn danger" @click="doDelete">Oui, supprimer</button>
-        <button type="button" class="btn" @click="showConfirm = false">Annuler</button>
+        <div class="confirm-actions">
+          <button type="button" class="action-btn danger" @click="doDelete">Oui, supprimer</button>
+          <button type="button" class="action-btn" @click="showConfirm = false">Annuler</button>
+        </div>
       </div>
     </template>
   </div>
@@ -92,96 +110,75 @@ onMounted(load)
 </script>
 
 <style scoped>
-.work-detail .header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+.work-header {
+  margin-bottom: 1.1rem;
 }
+
 .back {
-  color: #a1a1aa;
+  color: var(--q-text-secondary);
   text-decoration: none;
+  display: inline-flex;
+  margin-bottom: 0.45rem;
+  font-size: 0.88rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
 }
+
 .back:hover {
-  color: #fafafa;
+  color: var(--q-text-primary);
 }
-.work-detail h1 {
-  flex: 1;
-  margin: 0;
-  font-size: 1.5rem;
-}
-.badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  background: #3f3f46;
-  color: #a1a1aa;
-}
-.badge.seen {
-  background: #166534;
-  color: #bbf7d0;
-}
-.meta {
+
+.meta-grid {
+  margin: 0 0 1.5rem;
+  padding: 0;
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem 1.5rem;
-  margin-bottom: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 0.8rem;
 }
-.meta dt {
-  color: #a1a1aa;
+
+.meta-item {
   margin: 0;
+  border-radius: var(--q-radius-md);
+  border: 1px solid var(--q-border);
+  background: rgba(8, 18, 34, 0.75);
+  padding: 0.72rem 0.8rem;
 }
-.meta dd {
+
+.meta-item dt {
   margin: 0;
+  color: var(--q-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  font-size: 0.72rem;
 }
+
+.meta-item dd {
+  margin: 0.38rem 0 0;
+  color: var(--q-text-primary);
+}
+
 .actions {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.6rem;
 }
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #3f3f46;
-  background: #25262b;
-  color: #e4e4e7;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-.btn:hover {
-  background: #3f3f46;
-}
-.btn.primary {
-  border-color: #3b82f6;
-  background: #2563eb;
-  color: #fff;
-}
-.btn.primary:hover {
-  background: #1d4ed8;
-}
-.btn.danger {
-  border-color: #b91c1c;
-  background: #dc2626;
-  color: #fff;
-}
-.btn.danger:hover {
-  background: #b91c1c;
-}
-.confirm {
+
+.confirm-card {
   margin-top: 1rem;
-  padding: 1rem;
-  background: #25262b;
-  border-radius: 8px;
-  border: 1px solid #3f3f46;
+  padding: 1rem 1.05rem;
+  border-radius: var(--q-radius-md);
+  border: 1px solid rgba(255, 95, 143, 0.33);
+  background: rgba(41, 16, 29, 0.5);
 }
-.confirm p {
+
+.confirm-card p {
   margin-top: 0;
-  margin-bottom: 0.75rem;
+  margin-bottom: 0.9rem;
 }
-.confirm .btn {
-  margin-right: 0.5rem;
-}
-.error {
-  color: #f87171;
+
+.confirm-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.55rem;
 }
 </style>

@@ -1,39 +1,55 @@
 <template>
-  <div class="work-form">
-    <h1>{{ isEdit ? 'Modifier l\'œuvre' : 'Nouvelle œuvre' }}</h1>
+  <div class="work-form page-shell">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">{{ isEdit ? 'Modifier l\'œuvre' : 'Nouvelle œuvre' }}</h1>
+        <p class="page-subtitle">
+          {{ isEdit ? 'Mettez à jour les informations de l\'œuvre.' : 'Renseignez les champs pour enrichir votre catalogue.' }}
+        </p>
+      </div>
+    </header>
+
     <form @submit.prevent="submit">
-      <div class="field">
-        <label for="type">Type *</label>
-        <select id="type" v-model="form.type" required>
-          <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
-        </select>
+      <div class="form-grid">
+        <div class="field">
+          <label for="type">Type *</label>
+          <select id="type" v-model="form.type" required class="control-select">
+            <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="title">Titre *</label>
+          <input id="title" v-model="form.title" type="text" required class="control-input" />
+        </div>
+        <div class="field field-wide">
+          <label>Auteur(s) * (un par ligne)</label>
+          <textarea
+            v-model="authorsText"
+            rows="4"
+            placeholder="Un auteur par ligne"
+            class="control-textarea"
+          ></textarea>
+        </div>
+        <div class="field">
+          <label for="origin">Origine</label>
+          <input id="origin" v-model="form.origin" type="text" class="control-input" />
+        </div>
+        <div class="field">
+          <label for="availability">Disponibilité</label>
+          <input id="availability" v-model="form.availability" type="text" class="control-input" />
+        </div>
+        <div class="field checkbox field-wide">
+          <label>
+            <input v-model="form.seen" type="checkbox" />
+            Déjà vu
+          </label>
+        </div>
       </div>
-      <div class="field">
-        <label for="title">Titre *</label>
-        <input id="title" v-model="form.title" type="text" required />
-      </div>
-      <div class="field">
-        <label>Auteur(s) * (un par ligne)</label>
-        <textarea v-model="authorsText" rows="3" placeholder="Un auteur par ligne"></textarea>
-      </div>
-      <div class="field">
-        <label for="origin">Origine</label>
-        <input id="origin" v-model="form.origin" type="text" />
-      </div>
-      <div class="field">
-        <label for="availability">Disponibilité</label>
-        <input id="availability" v-model="form.availability" type="text" />
-      </div>
-      <div class="field checkbox">
-        <label>
-          <input v-model="form.seen" type="checkbox" />
-          Déjà vu
-        </label>
-      </div>
-      <p v-if="error" class="error">{{ error }}</p>
+
+      <p v-if="error" class="inline-error">{{ error }}</p>
       <div class="actions">
-        <button type="submit" class="btn primary">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
-        <router-link :to="isEdit ? `/works/${id}` : '/'" class="btn">Annuler</router-link>
+        <button type="submit" class="action-btn primary">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
+        <router-link :to="isEdit ? `/works/${id}` : '/'" class="action-btn">Annuler</router-link>
       </div>
     </form>
   </div>
@@ -123,67 +139,49 @@ onMounted(load)
 </script>
 
 <style scoped>
-.work-form h1 {
-  margin-top: 0;
-  font-size: 1.5rem;
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem 1.2rem;
 }
+
 .field {
-  margin-bottom: 1rem;
+  margin-bottom: 0.1rem;
 }
+
+.field-wide {
+  grid-column: 1 / -1;
+}
+
 .field label {
   display: block;
-  margin-bottom: 0.25rem;
-  color: #a1a1aa;
-  font-size: 0.9rem;
+  margin-bottom: 0.42rem;
+  color: var(--q-text-muted);
+  font-size: 0.76rem;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
 }
-.field input[type="text"],
-.field select,
-.field textarea {
-  width: 100%;
-  max-width: 28rem;
-  padding: 0.5rem 0.75rem;
-  background: #25262b;
-  border: 1px solid #3f3f46;
-  border-radius: 6px;
-  color: #e4e4e7;
-}
+
 .field.checkbox label {
-  display: flex;
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  color: inherit;
+  gap: 0.55rem;
+  color: var(--q-text-secondary);
+  font-size: 0.9rem;
+  text-transform: none;
+  letter-spacing: 0;
 }
+
 .field.checkbox input {
-  width: auto;
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--q-accent-strong);
 }
+
 .actions {
   display: flex;
-  gap: 0.5rem;
+  flex-wrap: wrap;
+  gap: 0.6rem;
   margin-top: 1.5rem;
-}
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #3f3f46;
-  background: #25262b;
-  color: #e4e4e7;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 0.9rem;
-}
-.btn:hover {
-  background: #3f3f46;
-}
-.btn.primary {
-  border-color: #3b82f6;
-  background: #2563eb;
-  color: #fff;
-}
-.btn.primary:hover {
-  background: #1d4ed8;
-}
-.error {
-  color: #f87171;
-  margin-bottom: 1rem;
 }
 </style>

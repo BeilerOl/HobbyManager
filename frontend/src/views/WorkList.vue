@@ -1,19 +1,32 @@
 <template>
-  <div class="work-list">
-    <h1>Œuvres</h1>
+  <div class="work-list page-shell">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">Catalogue des œuvres</h1>
+        <p class="page-subtitle">Gérez vos livres, mangas, BD, comics et films dans un tableau unifié.</p>
+      </div>
+    </header>
+
     <div class="filters">
-      <select v-model="filterType" @change="load">
-        <option value="">Tous les types</option>
-        <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
-      </select>
-      <select v-model="filterSeen" @change="load">
-        <option value="">Tous</option>
-        <option value="false">Non vu</option>
-        <option value="true">Déjà vu</option>
-      </select>
+      <label class="filter">
+        <span>Type</span>
+        <select v-model="filterType" class="control-select" @change="load">
+          <option value="">Tous les types</option>
+          <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
+        </select>
+      </label>
+      <label class="filter">
+        <span>Statut</span>
+        <select v-model="filterSeen" class="control-select" @change="load">
+          <option value="">Tous</option>
+          <option value="false">A voir</option>
+          <option value="true">Vu</option>
+        </select>
+      </label>
     </div>
+
     <p v-if="loading">Chargement…</p>
-    <p v-else-if="error" class="error">{{ error }}</p>
+    <p v-else-if="error" class="inline-error">{{ error }}</p>
     <p v-else-if="works.length === 0" class="empty">Aucune œuvre.</p>
     <div v-else class="table-wrapper">
       <table class="works-table">
@@ -47,7 +60,7 @@
                 </div>
               </template>
               <template v-else>
-                <span class="editable" @click="startEdit(w, 'type', w.type)">{{ typeLabel(w.type) }}</span>
+                <span class="editable text-link" @click="startEdit(w, 'type', w.type)">{{ typeLabel(w.type) }}</span>
               </template>
             </td>
             <!-- Title: text input -->
@@ -63,7 +76,7 @@
               </template>
               <template v-else>
                 <router-link :to="`/works/${w.id}`" class="title-link">{{ w.title }}</router-link>
-                <button type="button" class="btn-edit" title="Modifier" @click.stop="startEdit(w, 'title', w.title)">✎</button>
+                <button type="button" class="btn-edit" title="Modifier" @click.stop="startEdit(w, 'title', w.title)">Edit</button>
               </template>
             </td>
             <!-- Authors: text input (comma-separated) -->
@@ -128,19 +141,19 @@
                 </div>
               </template>
               <template v-else>
-                <span class="badge editable" :class="{ seen: w.seen }" @click="startEdit(w, 'seen', w.seen)">{{ w.seen ? 'Vu' : 'À voir' }}</span>
+                <span class="status-badge editable" :class="{ seen: w.seen }" @click="startEdit(w, 'seen', w.seen)">{{ w.seen ? 'Vu' : 'A voir' }}</span>
               </template>
             </td>
             <!-- Actions column -->
             <td>
-              <router-link :to="`/works/${w.id}`" class="btn-action" title="Voir détails">👁</router-link>
-              <router-link :to="`/works/${w.id}/edit`" class="btn-action" title="Modifier tout">✎</router-link>
+              <router-link :to="`/works/${w.id}`" class="btn-action" title="Voir détails">Voir</router-link>
+              <router-link :to="`/works/${w.id}/edit`" class="btn-action" title="Modifier tout">Editer</router-link>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    <p v-if="saveError" class="error save-error">{{ saveError }}</p>
+    <p v-if="saveError" class="inline-error save-error">{{ saveError }}</p>
   </div>
 </template>
 
@@ -239,104 +252,113 @@ onMounted(load)
 </script>
 
 <style scoped>
-.work-list h1 {
-  margin-top: 0;
-  font-size: 1.5rem;
-}
 .filters {
   display: flex;
-  gap: 0.75rem;
-  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.9rem;
+  margin-bottom: 1.2rem;
 }
-.filters select {
-  padding: 0.5rem 0.75rem;
-  background: #25262b;
-  border: 1px solid #3f3f46;
-  border-radius: 6px;
-  color: #e4e4e7;
+
+.filter {
+  display: grid;
+  gap: 0.4rem;
+  min-width: 13rem;
 }
+
+.filter span {
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--q-text-muted);
+}
+
 .table-wrapper {
   overflow-x: auto;
+  border-radius: var(--q-radius-md);
+  border: 1px solid var(--q-border);
+  box-shadow: inset 0 1px 0 rgba(153, 191, 255, 0.08);
 }
+
 .works-table {
   width: 100%;
   border-collapse: collapse;
-  background: #25262b;
-  border: 1px solid #3f3f46;
-  border-radius: 8px;
-  overflow: hidden;
+  background: var(--q-surface-2);
+  min-width: 980px;
 }
+
 .works-table th,
 .works-table td {
-  padding: 0.75rem;
+  padding: 0.72rem 0.8rem;
   text-align: left;
-  border-bottom: 1px solid #3f3f46;
+  border-bottom: 1px solid rgba(113, 148, 201, 0.18);
   vertical-align: middle;
 }
+
 .works-table th {
-  color: #a1a1aa;
+  color: var(--q-text-muted);
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: 0.74rem;
   text-transform: uppercase;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.08em;
+  background: rgba(12, 26, 48, 0.95);
 }
+
 .works-table tbody tr:last-child td {
   border-bottom: none;
 }
+
+.works-table tbody tr:hover {
+  background: rgba(31, 61, 102, 0.24);
+}
+
 .title-link {
-  color: #93c5fd;
+  color: #9ec8ff;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 700;
 }
+
 .title-link:hover {
-  text-decoration: underline;
+  color: #c6e6ff;
 }
-.badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  background: #3f3f46;
-  color: #a1a1aa;
+
+.empty {
+  color: var(--q-text-secondary);
 }
-.badge.seen {
-  background: #166534;
-  color: #bbf7d0;
-}
-.empty,
-.error {
-  color: #a1a1aa;
-}
-.error {
-  color: #f87171;
-}
+
 .save-error {
   margin-top: 1rem;
 }
 
 .editable {
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: background 0.15s;
+  border-radius: 999px;
+  transition: background 0.15s ease, color 0.15s ease;
 }
+
 .editable:hover {
-  background: #3f3f46;
+  background: rgba(55, 87, 134, 0.3);
+}
+
+.text-link {
+  padding: 0.2rem 0.45rem;
+  color: #afd2ff;
 }
 
 .btn-edit {
   margin-left: 0.5rem;
-  padding: 0.15rem 0.4rem;
-  background: #3f3f46;
-  border: 1px solid #52525b;
-  color: #93c5fd;
+  padding: 0.16rem 0.52rem;
+  background: rgba(25, 49, 80, 0.65);
+  border: 1px solid var(--q-border);
+  color: #b4d7ff;
   cursor: pointer;
-  font-size: 0.85rem;
-  border-radius: 4px;
-  transition: background 0.15s, border-color 0.15s;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
+
 .btn-edit:hover {
-  background: #52525b;
-  border-color: #93c5fd;
+  background: rgba(31, 65, 108, 0.88);
+  border-color: var(--q-border-strong);
 }
 
 .edit-cell {
@@ -347,54 +369,63 @@ onMounted(load)
 .edit-input,
 .edit-select {
   padding: 0.35rem 0.5rem;
-  background: #1a1b1e;
-  border: 1px solid #3b82f6;
-  border-radius: 4px;
-  color: #e4e4e7;
+  background: rgba(5, 12, 23, 0.9);
+  border: 1px solid var(--q-border-strong);
+  border-radius: var(--q-radius-sm);
+  color: var(--q-text-primary);
   font-size: 0.9rem;
   min-width: 100px;
 }
 .edit-input:focus,
 .edit-select:focus {
   outline: none;
-  border-color: #60a5fa;
+  box-shadow: 0 0 0 3px rgba(47, 143, 255, 0.22);
 }
 .edit-actions {
   display: flex;
   gap: 0.25rem;
 }
 .btn-icon {
-  padding: 0.25rem 0.5rem;
-  border: none;
-  border-radius: 4px;
+  padding: 0.24rem 0.46rem;
+  border: 1px solid transparent;
+  border-radius: var(--q-radius-sm);
   cursor: pointer;
   font-size: 0.85rem;
-  transition: background 0.15s;
+  transition: background 0.15s ease, border-color 0.15s ease;
 }
 .btn-icon.save {
-  background: #166534;
-  color: #bbf7d0;
+  background: rgba(24, 116, 78, 0.66);
+  color: #adf7d3;
+  border-color: rgba(77, 230, 157, 0.4);
 }
 .btn-icon.save:hover {
-  background: #15803d;
+  background: rgba(26, 138, 91, 0.76);
 }
 .btn-icon.cancel {
-  background: #3f3f46;
-  color: #a1a1aa;
+  background: rgba(49, 67, 96, 0.7);
+  color: var(--q-text-secondary);
+  border-color: var(--q-border);
 }
 .btn-icon.cancel:hover {
-  background: #52525b;
+  background: rgba(62, 83, 118, 0.82);
 }
 
 .btn-action {
-  padding: 0.25rem 0.5rem;
-  margin-right: 0.25rem;
+  display: inline-block;
+  padding: 0.26rem 0.56rem;
+  margin-right: 0.35rem;
   text-decoration: none;
-  font-size: 1rem;
-  border-radius: 4px;
-  transition: background 0.15s;
+  font-size: 0.78rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  border-radius: 999px;
+  border: 1px solid var(--q-border);
+  color: var(--q-text-secondary);
+  transition: border-color 0.15s ease, color 0.15s ease, background 0.15s ease;
 }
 .btn-action:hover {
-  background: #3f3f46;
+  color: var(--q-text-primary);
+  border-color: var(--q-border-strong);
+  background: rgba(30, 63, 109, 0.45);
 }
 </style>
