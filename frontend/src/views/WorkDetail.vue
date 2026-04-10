@@ -1,33 +1,104 @@
 <template>
   <div class="work-detail">
-    <p v-if="loading">Chargement…</p>
-    <p v-else-if="error" class="error">{{ error }}</p>
+    <div v-if="loading" class="loading-state">
+      <i class="material-icons spin">autorenew</i>
+      <span>Chargement…</span>
+    </div>
+    <div v-else-if="error" class="qtm-alert qtm-alert-error">
+      <i class="material-icons">error_outline</i>
+      <span>{{ error }}</span>
+    </div>
     <template v-else-if="work">
-      <div class="header">
-        <router-link to="/" class="back">← Liste</router-link>
-        <h1>{{ work.title }}</h1>
-        <span class="badge" :class="{ seen: work.seen }">{{ work.seen ? 'Vu' : 'À voir' }}</span>
+      <div class="detail-header">
+        <router-link to="/" class="back-link">
+          <i class="material-icons">arrow_back</i>
+          <span>Liste</span>
+        </router-link>
       </div>
-      <dl class="meta">
-        <dt>Type</dt>
-        <dd>{{ typeLabel(work.type) }}</dd>
-        <dt>Auteur(s)</dt>
-        <dd>{{ work.authors?.join(', ') || '—' }}</dd>
-        <dt>Date d'ajout</dt>
-        <dd>{{ formatDate(work.added_at) }}</dd>
-        <dt>Origine</dt>
-        <dd>{{ work.origin || '—' }}</dd>
-        <dt>Disponibilité</dt>
-        <dd>{{ work.availability || '—' }}</dd>
-      </dl>
-      <div class="actions">
-        <router-link :to="`/works/${work.id}/edit`" class="btn primary">Modifier</router-link>
-        <button type="button" class="btn danger" @click="confirmDelete">Supprimer</button>
+
+      <div class="detail-card qtm-card">
+        <div class="card-header">
+          <div class="card-title-row">
+            <h1 class="card-title">{{ work.title }}</h1>
+            <span
+              class="qtm-tag"
+              :class="work.seen ? 'qtm-tag-success' : 'qtm-tag-neutral'"
+            >
+              <i class="material-icons" style="font-size: 0.875rem">{{ work.seen ? 'check_circle' : 'schedule' }}</i>
+              {{ work.seen ? 'Vu' : 'À voir' }}
+            </span>
+          </div>
+        </div>
+
+        <div class="card-body">
+          <dl class="meta-grid">
+            <div class="meta-item">
+              <dt>
+                <i class="material-icons">category</i>
+                Type
+              </dt>
+              <dd>{{ typeLabel(work.type) }}</dd>
+            </div>
+            <div class="meta-item">
+              <dt>
+                <i class="material-icons">person</i>
+                Auteur(s)
+              </dt>
+              <dd>{{ work.authors?.join(', ') || '—' }}</dd>
+            </div>
+            <div class="meta-item">
+              <dt>
+                <i class="material-icons">calendar_today</i>
+                Date d'ajout
+              </dt>
+              <dd>{{ formatDate(work.added_at) }}</dd>
+            </div>
+            <div class="meta-item">
+              <dt>
+                <i class="material-icons">source</i>
+                Origine
+              </dt>
+              <dd>{{ work.origin || '—' }}</dd>
+            </div>
+            <div class="meta-item">
+              <dt>
+                <i class="material-icons">storefront</i>
+                Disponibilité
+              </dt>
+              <dd>{{ work.availability || '—' }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <div class="card-footer">
+          <router-link :to="`/works/${work.id}/edit`" class="qtm-btn qtm-btn-primary">
+            <i class="material-icons">edit</i>
+            <span>Modifier</span>
+          </router-link>
+          <button type="button" class="qtm-btn qtm-btn-danger" @click="confirmDelete">
+            <i class="material-icons">delete</i>
+            <span>Supprimer</span>
+          </button>
+        </div>
       </div>
-      <div v-if="showConfirm" class="confirm">
-        <p>Supprimer « {{ work.title }} » ?</p>
-        <button type="button" class="btn danger" @click="doDelete">Oui, supprimer</button>
-        <button type="button" class="btn" @click="showConfirm = false">Annuler</button>
+
+      <div v-if="showConfirm" class="confirm-overlay">
+        <div class="confirm-dialog qtm-card">
+          <div class="confirm-icon">
+            <i class="material-icons">warning_amber</i>
+          </div>
+          <p class="confirm-text">Supprimer « {{ work.title }} » ?</p>
+          <p class="confirm-subtext">Cette action est irréversible.</p>
+          <div class="confirm-actions">
+            <button type="button" class="qtm-btn qtm-btn-danger" @click="doDelete">
+              <i class="material-icons">delete</i>
+              Oui, supprimer
+            </button>
+            <button type="button" class="qtm-btn qtm-btn-outline" @click="showConfirm = false">
+              Annuler
+            </button>
+          </div>
+        </div>
       </div>
     </template>
   </div>
@@ -92,96 +163,147 @@ onMounted(load)
 </script>
 
 <style scoped>
-.work-detail .header {
+.detail-header {
+  margin-bottom: var(--qtm-space-xl);
+}
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qtm-space-xs);
+  color: var(--qtm-text-secondary);
+  text-decoration: none;
+  font-size: var(--qtm-font-size-base);
+  font-weight: 500;
+  padding: var(--qtm-space-xs) var(--qtm-space-s);
+  border-radius: var(--qtm-radius-m);
+  transition: all var(--qtm-transition-fast);
+  margin-left: calc(-1 * var(--qtm-space-s));
+}
+.back-link:hover {
+  color: var(--qtm-primary-400);
+  background: var(--qtm-primary-100);
+  text-decoration: none;
+}
+.back-link .material-icons {
+  font-size: 1.125rem;
+}
+
+.detail-card {
+  overflow: hidden;
+}
+.card-header {
+  padding: var(--qtm-space-xl) var(--qtm-space-xxl);
+  border-bottom: 1px solid var(--qtm-border-default);
+  background: var(--qtm-bluegrey-50);
+}
+.card-title-row {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: var(--qtm-space-l);
 }
-.back {
-  color: #a1a1aa;
-  text-decoration: none;
-}
-.back:hover {
-  color: #fafafa;
-}
-.work-detail h1 {
+.card-title {
   flex: 1;
   margin: 0;
-  font-size: 1.5rem;
+  font-size: var(--qtm-font-size-xl);
+  font-weight: 700;
+  color: var(--qtm-text-primary);
 }
-.badge {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  background: #3f3f46;
-  color: #a1a1aa;
+.card-body {
+  padding: var(--qtm-space-xxl);
 }
-.badge.seen {
-  background: #166534;
-  color: #bbf7d0;
-}
-.meta {
+.meta-grid {
   display: grid;
-  grid-template-columns: auto 1fr;
-  gap: 0.5rem 1.5rem;
-  margin-bottom: 1.5rem;
-}
-.meta dt {
-  color: #a1a1aa;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--qtm-space-xl);
   margin: 0;
 }
-.meta dd {
-  margin: 0;
-}
-.actions {
+.meta-item dt {
   display: flex;
-  gap: 0.5rem;
+  align-items: center;
+  gap: var(--qtm-space-xs);
+  color: var(--qtm-text-secondary);
+  font-size: var(--qtm-font-size-sm);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  margin-bottom: var(--qtm-space-xs);
 }
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #3f3f46;
-  background: #25262b;
-  color: #e4e4e7;
-  cursor: pointer;
-  text-decoration: none;
-  font-size: 0.9rem;
+.meta-item dt .material-icons {
+  font-size: 1rem;
+  color: var(--qtm-bluegrey-400);
 }
-.btn:hover {
-  background: #3f3f46;
+.meta-item dd {
+  margin: 0;
+  font-size: var(--qtm-font-size-md);
+  color: var(--qtm-text-primary);
 }
-.btn.primary {
-  border-color: #3b82f6;
-  background: #2563eb;
-  color: #fff;
+
+.card-footer {
+  display: flex;
+  gap: var(--qtm-space-s);
+  padding: var(--qtm-space-xl) var(--qtm-space-xxl);
+  border-top: 1px solid var(--qtm-border-default);
+  background: var(--qtm-bluegrey-50);
 }
-.btn.primary:hover {
-  background: #1d4ed8;
+
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--qtm-bg-overlay);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 200;
 }
-.btn.danger {
-  border-color: #b91c1c;
-  background: #dc2626;
-  color: #fff;
+.confirm-dialog {
+  padding: var(--qtm-space-xxl);
+  max-width: 24rem;
+  width: 90%;
+  text-align: center;
 }
-.btn.danger:hover {
-  background: #b91c1c;
+.confirm-icon {
+  margin-bottom: var(--qtm-space-l);
 }
-.confirm {
-  margin-top: 1rem;
-  padding: 1rem;
-  background: #25262b;
-  border-radius: 8px;
-  border: 1px solid #3f3f46;
+.confirm-icon .material-icons {
+  font-size: 2.5rem;
+  color: var(--qtm-warning-400);
 }
-.confirm p {
-  margin-top: 0;
-  margin-bottom: 0.75rem;
+.confirm-text {
+  margin: 0 0 var(--qtm-space-xs);
+  font-size: var(--qtm-font-size-md);
+  font-weight: 600;
+  color: var(--qtm-text-primary);
 }
-.confirm .btn {
-  margin-right: 0.5rem;
+.confirm-subtext {
+  margin: 0 0 var(--qtm-space-xl);
+  font-size: var(--qtm-font-size-base);
+  color: var(--qtm-text-secondary);
 }
-.error {
-  color: #f87171;
+.confirm-actions {
+  display: flex;
+  gap: var(--qtm-space-s);
+  justify-content: center;
+}
+
+.loading-state {
+  display: flex;
+  align-items: center;
+  gap: var(--qtm-space-s);
+  padding: var(--qtm-space-xxl);
+  justify-content: center;
+  color: var(--qtm-text-secondary);
+}
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+
+@media (max-width: 640px) {
+  .meta-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
