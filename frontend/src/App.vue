@@ -3,7 +3,7 @@
     <header class="qtm-header">
       <div class="qtm-header-brand">
         <router-link to="/" class="logo">
-          <i class="material-icons logo-icon">interests</i>
+          <i class="material-icons logo-icon">home</i>
           <span class="logo-text">HobbyManager</span>
         </router-link>
       </div>
@@ -18,6 +18,11 @@
           <span>Ajouter</span>
         </router-link>
       </nav>
+      <div class="qtm-header-actions">
+        <button class="qtm-btn qtm-btn-icon theme-toggle" @click="toggleTheme" :title="isDark ? 'Switch to light mode' : 'Switch to dark mode'">
+          <i class="material-icons">{{ isDark ? 'light_mode' : 'dark_mode' }}</i>
+        </button>
+      </div>
     </header>
     <main class="main">
       <router-view />
@@ -26,6 +31,22 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
+
+const isDark = ref(false)
+
+function toggleTheme() {
+  isDark.value = !isDark.value
+  const theme = isDark.value ? 'dark' : 'light'
+  document.documentElement.setAttribute('data-theme', theme)
+  localStorage.setItem('theme', theme)
+}
+
+onMounted(() => {
+  const saved = localStorage.getItem('theme') || 'light'
+  isDark.value = saved === 'dark'
+  document.documentElement.setAttribute('data-theme', saved)
+})
 </script>
 
 <style>
@@ -107,6 +128,20 @@
 }
 .nav-link .material-icons {
   font-size: 1.125rem;
+}
+.qtm-header-actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+.theme-toggle {
+  color: var(--qtm-text-secondary);
+  background: transparent;
+  border-color: transparent;
+}
+.theme-toggle:hover {
+  color: var(--qtm-primary-400);
+  background: var(--qtm-primary-100);
 }
 .main {
   flex: 1;

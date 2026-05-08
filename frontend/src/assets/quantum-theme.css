@@ -110,6 +110,40 @@
   --qtm-transition-normal: 250ms ease;
 }
 
+/* ===== Dark Theme Overrides ===== */
+[data-theme="dark"] {
+  --qtm-bg-default:  #0f1923;
+  --qtm-bg-surface:  #1a2637;
+  --qtm-bg-elevated: #243347;
+  --qtm-bg-overlay:  rgba(0, 0, 0, 0.6);
+
+  --qtm-text-primary:   #e8edf3;
+  --qtm-text-secondary: #9aafc4;
+  --qtm-text-disabled:  #4d6478;
+  --qtm-text-inverse:   #1a2332;
+  --qtm-text-link:      #7986cb;
+
+  --qtm-border-default: #2e4057;
+  --qtm-border-strong:  #3d5166;
+  --qtm-border-focus:   #7986cb;
+
+  --qtm-bluegrey-50:  #1a2637;
+  --qtm-bluegrey-100: #243347;
+  --qtm-bluegrey-200: #2e4057;
+  --qtm-bluegrey-300: #3d5166;
+  --qtm-bluegrey-400: #4d6478;
+  --qtm-bluegrey-500: #7a98b0;
+  --qtm-bluegrey-600: #9aafc4;
+  --qtm-bluegrey-700: #c2d0de;
+  --qtm-bluegrey-800: #dce5ef;
+  --qtm-bluegrey-900: #e8edf3;
+
+  --qtm-shadow-s:  0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.2);
+  --qtm-shadow-m:  0 4px 6px rgba(0, 0, 0, 0.25), 0 2px 4px rgba(0, 0, 0, 0.2);
+  --qtm-shadow-l:  0 10px 15px rgba(0, 0, 0, 0.3), 0 4px 6px rgba(0, 0, 0, 0.2);
+  --qtm-shadow-xl: 0 20px 25px rgba(0, 0, 0, 0.35), 0 10px 10px rgba(0, 0, 0, 0.2);
+}
+
 /* ===== Base / Preflight ===== */
 *,
 *::before,
