@@ -1,41 +1,83 @@
 <template>
   <div class="work-form">
-    <h1>{{ isEdit ? 'Modifier l\'œuvre' : 'Nouvelle œuvre' }}</h1>
-    <form @submit.prevent="submit">
-      <div class="field">
-        <label for="type">Type *</label>
-        <select id="type" v-model="form.type" required>
-          <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
-        </select>
+    <div class="form-header">
+      <router-link :to="isEdit ? `/works/${id}` : '/'" class="back-link">
+        <i class="material-icons">arrow_back</i>
+        <span>{{ isEdit ? 'Détail' : 'Liste' }}</span>
+      </router-link>
+    </div>
+
+    <div class="form-card qtm-card">
+      <div class="card-header">
+        <h1 class="card-title">
+          <i class="material-icons">{{ isEdit ? 'edit' : 'add_circle_outline' }}</i>
+          {{ isEdit ? 'Modifier l\'œuvre' : 'Nouvelle œuvre' }}
+        </h1>
       </div>
-      <div class="field">
-        <label for="title">Titre *</label>
-        <input id="title" v-model="form.title" type="text" required />
-      </div>
-      <div class="field">
-        <label>Auteur(s) * (un par ligne)</label>
-        <textarea v-model="authorsText" rows="3" placeholder="Un auteur par ligne"></textarea>
-      </div>
-      <div class="field">
-        <label for="origin">Origine</label>
-        <input id="origin" v-model="form.origin" type="text" />
-      </div>
-      <div class="field">
-        <label for="availability">Disponibilité</label>
-        <input id="availability" v-model="form.availability" type="text" />
-      </div>
-      <div class="field checkbox">
-        <label>
-          <input v-model="form.seen" type="checkbox" />
-          Déjà vu
-        </label>
-      </div>
-      <p v-if="error" class="error">{{ error }}</p>
-      <div class="actions">
-        <button type="submit" class="btn primary">{{ isEdit ? 'Enregistrer' : 'Créer' }}</button>
-        <router-link :to="isEdit ? `/works/${id}` : '/'" class="btn">Annuler</router-link>
-      </div>
-    </form>
+
+      <form class="card-body" @submit.prevent="submit">
+        <div class="form-grid">
+          <div class="qtm-form-field">
+            <label class="qtm-form-label" for="type">
+              Type <span class="required">*</span>
+            </label>
+            <select id="type" v-model="form.type" class="qtm-form-select" required>
+              <option v-for="t in WORK_TYPES" :key="t.value" :value="t.value">{{ t.label }}</option>
+            </select>
+          </div>
+
+          <div class="qtm-form-field">
+            <label class="qtm-form-label" for="title">
+              Titre <span class="required">*</span>
+            </label>
+            <input id="title" v-model="form.title" type="text" class="qtm-form-input" required />
+          </div>
+
+          <div class="qtm-form-field field-full">
+            <label class="qtm-form-label">
+              Auteur(s) <span class="required">*</span>
+              <span class="label-hint">un par ligne</span>
+            </label>
+            <textarea v-model="authorsText" rows="3" class="qtm-form-textarea" placeholder="Un auteur par ligne"></textarea>
+          </div>
+
+          <div class="qtm-form-field">
+            <label class="qtm-form-label" for="origin">Origine</label>
+            <input id="origin" v-model="form.origin" type="text" class="qtm-form-input" />
+          </div>
+
+          <div class="qtm-form-field">
+            <label class="qtm-form-label" for="availability">Disponibilité</label>
+            <input id="availability" v-model="form.availability" type="text" class="qtm-form-input" />
+          </div>
+
+          <div class="qtm-form-field field-full">
+            <label class="checkbox-label">
+              <input v-model="form.seen" type="checkbox" class="checkbox-input" />
+              <span class="checkbox-custom">
+                <i class="material-icons">{{ form.seen ? 'check_box' : 'check_box_outline_blank' }}</i>
+              </span>
+              <span>Déjà vu</span>
+            </label>
+          </div>
+        </div>
+
+        <div v-if="error" class="qtm-alert qtm-alert-error form-error">
+          <i class="material-icons">error_outline</i>
+          <span>{{ error }}</span>
+        </div>
+
+        <div class="form-actions">
+          <button type="submit" class="qtm-btn qtm-btn-primary">
+            <i class="material-icons">{{ isEdit ? 'save' : 'add' }}</i>
+            <span>{{ isEdit ? 'Enregistrer' : 'Créer' }}</span>
+          </button>
+          <router-link :to="isEdit ? `/works/${id}` : '/'" class="qtm-btn qtm-btn-outline">
+            Annuler
+          </router-link>
+        </div>
+      </form>
+    </div>
   </div>
 </template>
 
@@ -62,7 +104,6 @@ const loading = ref(false)
 
 const id = computed(() => Number(route.params.id))
 
-// Sync authors array with textarea (one author per line)
 watch(authorsText, (t) => {
   form.value.authors = t
     .split('\n')
@@ -123,67 +164,113 @@ onMounted(load)
 </script>
 
 <style scoped>
-.work-form h1 {
-  margin-top: 0;
-  font-size: 1.5rem;
+.form-header {
+  margin-bottom: var(--qtm-space-xl);
 }
-.field {
-  margin-bottom: 1rem;
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--qtm-space-xs);
+  color: var(--qtm-text-secondary);
+  text-decoration: none;
+  font-size: var(--qtm-font-size-base);
+  font-weight: 500;
+  padding: var(--qtm-space-xs) var(--qtm-space-s);
+  border-radius: var(--qtm-radius-m);
+  transition: all var(--qtm-transition-fast);
+  margin-left: calc(-1 * var(--qtm-space-s));
 }
-.field label {
-  display: block;
-  margin-bottom: 0.25rem;
-  color: #a1a1aa;
-  font-size: 0.9rem;
+.back-link:hover {
+  color: var(--qtm-primary-400);
+  background: var(--qtm-primary-100);
+  text-decoration: none;
 }
-.field input[type="text"],
-.field select,
-.field textarea {
-  width: 100%;
-  max-width: 28rem;
-  padding: 0.5rem 0.75rem;
-  background: #25262b;
-  border: 1px solid #3f3f46;
-  border-radius: 6px;
-  color: #e4e4e7;
+.back-link .material-icons {
+  font-size: 1.125rem;
 }
-.field.checkbox label {
+
+.form-card {
+  max-width: 40rem;
+  overflow: hidden;
+}
+.card-header {
+  padding: var(--qtm-space-xl) var(--qtm-space-xxl);
+  border-bottom: 1px solid var(--qtm-border-default);
+  background: var(--qtm-bluegrey-50);
+}
+.card-title {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  color: inherit;
+  gap: var(--qtm-space-s);
+  margin: 0;
+  font-size: var(--qtm-font-size-xl);
+  font-weight: 700;
+  color: var(--qtm-text-primary);
 }
-.field.checkbox input {
-  width: auto;
+.card-title .material-icons {
+  color: var(--qtm-primary-400);
 }
-.actions {
+
+.card-body {
+  padding: var(--qtm-space-xxl);
+}
+.form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 var(--qtm-space-xl);
+}
+.field-full {
+  grid-column: 1 / -1;
+}
+.required {
+  color: var(--qtm-danger-400);
+}
+.label-hint {
+  font-weight: 400;
+  font-size: var(--qtm-font-size-sm);
+  color: var(--qtm-bluegrey-400);
+  text-transform: none;
+  letter-spacing: normal;
+  margin-left: var(--qtm-space-xs);
+}
+
+.checkbox-label {
   display: flex;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-}
-.btn {
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  border: 1px solid #3f3f46;
-  background: #25262b;
-  color: #e4e4e7;
+  align-items: center;
+  gap: var(--qtm-space-s);
   cursor: pointer;
-  text-decoration: none;
-  font-size: 0.9rem;
+  font-size: var(--qtm-font-size-base);
+  color: var(--qtm-text-primary);
+  user-select: none;
 }
-.btn:hover {
-  background: #3f3f46;
+.checkbox-input {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
 }
-.btn.primary {
-  border-color: #3b82f6;
-  background: #2563eb;
-  color: #fff;
+.checkbox-custom .material-icons {
+  font-size: 1.5rem;
+  color: var(--qtm-bluegrey-400);
+  transition: color var(--qtm-transition-fast);
 }
-.btn.primary:hover {
-  background: #1d4ed8;
+.checkbox-input:checked + .checkbox-custom .material-icons {
+  color: var(--qtm-primary-400);
 }
-.error {
-  color: #f87171;
-  margin-bottom: 1rem;
+
+.form-error {
+  margin-bottom: var(--qtm-space-xl);
+}
+.form-actions {
+  display: flex;
+  gap: var(--qtm-space-s);
+  padding-top: var(--qtm-space-l);
+  border-top: 1px solid var(--qtm-border-default);
+}
+
+@media (max-width: 640px) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
 }
 </style>
